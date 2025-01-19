@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(uuid())
+  name String
+  email String
+  password String
+  classesCreated Class[] @relation("classCreator")
+  classesJoined Class[]
+  threadsCreated Thread[] @relation("author")
+  threadsMessages ThreadMessage[] @relation("user")
+  messages Message[] @relation("author")
+
+  
+}
+
+
+model Subject {
+  subjectCode String @id
+  subjectName String
+  pyqs String[]
+  samplePapers String[]
+}
+
+model Class {
+  id String @id @default(uuid())
+  name String
+  creator User @relation("classCreator",references: [id],fields: [creatorId])
+  creatorId String
+  members User[]
+}
+
+model Thread {
+  id String @id @default(uuid())
+  title String
+  ThreadMessages ThreadMessage[] @relation("threadMessage")
+  author User @relation("author",references: [id],fields: [authorId])
+  authorId String
+
+}
+
+model ThreadMessage {
+  id String @id @default(uuid())
+  thread Thread @relation("threadMessage",references: [id],fields: [threadId])
+  threadId String
+  author User @relation("user",references: [id],fields: [authorId])
+  authorId String
+}
+
+model Message {
+  id String @id @default(uuid())
+  content String
+  author User @relation("author",references: [id],fields: [authorId])
+  authorId String
+}
